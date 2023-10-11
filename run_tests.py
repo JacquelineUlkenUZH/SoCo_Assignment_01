@@ -1,9 +1,10 @@
-import argparse
+import argparse, os
 
 # Configuration variables
 testfile_empty = "testfile_empty.txt"
 testfile_small = "testfile_small.txt"
 testfile_large = "testfile_large.txt"
+testfiles = [testfile_empty, testfile_small, testfile_large]
 testprefix = "test_"
 
 
@@ -15,15 +16,28 @@ args = parser.parse_args()
 
 
 # Our helper functions
-def setup(contentsmall, contentlarge):
-    pass
+def setup(fnc_name):
+    with open(testfile_empty, 'w') as f:
+        pass
+    with open(testfile_small, 'w') as f:
+        f.write('This is testcontent with\na new line!')
+    with open(testfile_large, 'w') as f:
+        f.write('This is testcontent with\na new line!' * 1000 )
 
-def teardown():
-    pass
+def teardown(fnc_name):
+    for testfile in testfiles:
+        try:
+            os.remove(testfile)
+        except FileNotFoundError:
+            pass
+        except Exception:
+            print(f"Teardown of {testfile} in {fnc_name} failed!")
+
 
 
 def test_printing():
-    print("Printing this")
+    with open(testfile_small, "r") as f:
+        print(f.read())
 
 def test_flexibility():
     print("very flexible")
@@ -32,10 +46,10 @@ def test_flexibility():
 def main():
     for name, fnc in globals().items():
         if name.startswith(testprefix):
-            if ( args.select and args.select in name ) or not args.select:
-                setup()
+            if not args.select or args.select in name:
+                setup(name)
                 fnc()
-                teardown()
+                teardown(name)
 
 if __name__ == "__main__":
     main()
