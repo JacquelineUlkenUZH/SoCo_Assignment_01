@@ -51,7 +51,23 @@ def teardown(function_name):
 # Actual test functions
 def test_create_file_empty():
     empty_file = testfile_directory + "empty_file"
-    actual = fm.create_file(empty_file)
+    success = fm.create_file(empty_file)
+    with open(empty_file, "r") as file:
+        content_matches = file.read() == ""
+
+    actual = content_matches == success  # create_file function should only return true if the content actually matches
+    expected = True
+    assert actual == expected
+
+
+def test_create_file_with_content():
+    content = "content"
+    with_content_file = testfile_directory + "with_content_file"
+    success = fm.create_file(with_content_file, content)
+    with open(with_content_file, "r") as file:
+        content_matches = file.read() == content
+
+    actual = content_matches == success  # create_file function should only return true if the content actually matches
     expected = True
     assert actual == expected
 
