@@ -49,8 +49,11 @@ def teardown(function_name):
 
 
 # Actual test functions
-def test_create_file():
-    pass
+def test_create_file_empty():
+    empty_file = testfile_directory + "empty_file"
+    actual = fm.create_file(empty_file)
+    expected = True
+    assert actual == expected
 
 
 def test_read_file_content_small_correct():
