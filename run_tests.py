@@ -5,6 +5,8 @@ testfile_empty = "testfile_empty.txt"
 testfile_small = "testfile_small.txt"
 testfile_large = "testfile_large.txt"
 testfiles = [testfile_empty, testfile_small, testfile_large]
+testcontent_small = 'This is testcontent with\na new line!'
+testcontent_large = 'This is testcontent with\na new line!' * 1000
 testprefix = "test_"
 
 
@@ -20,9 +22,9 @@ def setup(fnc_name):
     with open(testfile_empty, 'w') as f:
         pass
     with open(testfile_small, 'w') as f:
-        f.write('This is testcontent with\na new line!')
+        f.write(testcontent_small)
     with open(testfile_large, 'w') as f:
-        f.write('This is testcontent with\na new line!' * 1000 )
+        f.write(testcontent_large)
 
 def teardown(fnc_name):
     for testfile in testfiles:
