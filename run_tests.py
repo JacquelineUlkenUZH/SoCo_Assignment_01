@@ -3,10 +3,10 @@ import os
 import file_manager as fm
 
 # Helper variables
-testfile_empty = "testfile_empty.txt"
-testfile_small = "testfile_small.txt"
-testfile_large = "testfile_large.txt"
-testfiles = [testfile_empty, testfile_small, testfile_large]
+testfile_directory = "testfiles/"
+testfile_empty = testfile_directory + "testfile_empty.txt"
+testfile_small = testfile_directory + "testfile_small.txt"
+testfile_large = testfile_directory + "testfile_large.txt"
 testcontent_small = "This is test content with\na new line!"
 testcontent_large = "This is test content with\na new line!" * 1000
 testprefix = "test_"
@@ -22,26 +22,36 @@ args = parser.parse_args()
 
 
 # Setup and teardown
-def setup(fnc_name):
-    with open(testfile_empty, "w"):
-        pass
-    with open(testfile_small, "w") as f:
-        f.write(testcontent_small)
-    with open(testfile_large, "w") as f:
-        f.write(testcontent_large)
+def setup(function_name):
+    try:
+        if not os.path.exists(testfile_directory):
+            os.makedirs(testfile_directory)
+        with open(testfile_empty, "w"):
+            pass
+        with open(testfile_small, "w") as f:
+            f.write(testcontent_small)
+        with open(testfile_large, "w") as f:
+            f.write(testcontent_large)
+    except Exception as e:
+        print(f"Setup for {function_name} failed with error {e}!")
 
 
 def teardown(function_name):
-    for testfile in testfiles:
+    for testfile in os.listdir(testfile_directory):
         try:
-            os.remove(testfile)
+            os.remove(testfile_directory + testfile)
         except FileNotFoundError:
             pass
         except Exception as e:
             print(f"Teardown of {testfile} in {function_name} failed with error {e}!")
 
+    os.rmdir(testfile_directory)
+
 
 # Actual test functions
+def test_create_file():
+    pass
+
 
 def test_read_file_content_small_correct():
     actual = fm.read_file(testfile_small)
@@ -58,14 +68,19 @@ def test_read_file_content_large_correct():
 def test_delete_file_small_correct():
     assert fm.delete_file(testfile_small)
 
+
 def test_delete_file_large_correct():
     assert fm.delete_file(testfile_large)
 
+
 def test_delete_file_not_existing():
+    file_not_existing = "does_not_exist"
     assert fm.delete_file(file_not_existing) == FileNotFoundError
+
 
 def test_delete_file_empty():
     assert fm.delete_file(testfile_empty)
+
 
 def test_cause_fail():
     assert 1 == 2
