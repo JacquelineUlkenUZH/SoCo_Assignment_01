@@ -46,6 +46,7 @@ def teardown(function_name):
             print(f"Teardown of {testfile} in {function_name} failed with error {e}!")
 
     os.rmdir(testfile_directory)
+    pass
 
 
 # Actual test functions
@@ -55,7 +56,7 @@ def test_create_file_empty():
     with open(empty_file, "r") as file:
         content_matches = file.read() == ""
 
-    actual = content_matches == success  # create_file function should only return true if the content actually matches
+    actual = content_matches and success
     expected = True
     assert actual == expected
 
@@ -67,8 +68,21 @@ def test_create_file_with_content():
     with open(with_content_file, "r") as file:
         content_matches = file.read() == content
 
-    actual = content_matches == success  # create_file function should only return true if the content actually matches
+    actual = content_matches and success
     expected = True
+    assert actual == expected
+
+
+def test_create_file_no_name():
+    no_name_file = ""
+    actual = fm.create_file(no_name_file)
+    expected = False
+    assert actual == expected
+
+
+def test_create_file_already_exists():
+    actual = fm.create_file(testfile_small, "content")
+    expected = False
     assert actual == expected
 
 
