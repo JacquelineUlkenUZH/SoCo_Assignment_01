@@ -40,6 +40,7 @@ def teardown(function_name):
         except Exception as e:
             print(f"Teardown of {testfile} in {function_name} failed with error {e}!")
 
+
 # Actual test functions
 
 def test_read_file_content_small_correct():
@@ -47,20 +48,35 @@ def test_read_file_content_small_correct():
     expected = testcontent_small
     assert actual == expected
 
+
 def test_read_file_content_large_correct():
     actual = fm.read_file(testfile_large)
     expected = testcontent_large
     assert actual == expected
 
+
+def test_delete_file_small_correct():
+    assert fm.delete_file(testfile_small)
+
+def test_delete_file_large_correct():
+    assert fm.delete_file(testfile_large)
+
+def test_delete_file_not_existing():
+    assert fm.delete_file(file_not_existing) == FileNotFoundError
+
+def test_delete_file_empty():
+    assert fm.delete_file(testfile_empty)
+
 def test_cause_fail():
     assert 1 == 2
 
+
 def test_cause_error():
-    assert 1/0 == 2
+    assert 1 / 0 == 2
 
 
 def main():
-    print() # newline
+    print()  # newline
     for name, func in globals().items():
         if name.startswith(testprefix) and callable(func):
             if not args.select or args.select in name:
@@ -81,6 +97,7 @@ def main():
     print(f"{str_pass} {results['pass']}")
     print(f"{str_fail} {results['fail']}")
     print(f"{str_error} {results['error']}")
+
 
 if __name__ == "__main__":
     main()
