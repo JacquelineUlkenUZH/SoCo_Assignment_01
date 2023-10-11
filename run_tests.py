@@ -10,6 +10,7 @@ testfile_large = testfile_directory + "testfile_large.txt"
 testcontent_small = "This is test content with\na new line!"
 testcontent_large = "This is test content with\na new line!" * 1000
 testprefix = "test_"
+str_position = f"\033[A\033[80C"
 results = {"pass": 0, "fail": 0, "error": 0}
 str_pass = "\033[92m" + "pass" + "\033[0m"
 str_fail = "\033[93m" + "fail" + "\033[0m"
@@ -126,27 +127,33 @@ def test_cause_error():
 
 def main():
     print()  # newline
+    fails = []
+    errors = []
     for name, func in globals().items():
         if name.startswith(testprefix) and callable(func):
             if not args.select or args.select in name:
                 setup(name)
-                print(f"{name:<60}", end="")
+                print(f"{name}")
                 try:
                     func()
-                    print(str_pass)
+                    print(str_position, str_pass)
                     results["pass"] += 1
                 except AssertionError:
-                    print(str_fail)
+                    print(str_position, str_fail)
                     results["fail"] += 1
+                    fails.append(name)
                 except Exception:
-                    print(str_error)
+                    print(str_position, str_error)
                     results["error"] += 1
+                    errors.append(name)
                 teardown(name)
     print("\nTest summary:\n-------------")
-    print(f"{str_pass} {results['pass']}")
-    print(f"{str_fail} {results['fail']}")
-    print(f"{str_error} {results['error']}")
-
+    print(f"\n{str_pass} {results['pass']}")
+    print(f"\n{str_fail} {results['fail']}")
+    for fail in fails: print(fail)
+    print(f"\n{str_error} {results['error']}")
+    for error in errors: print(error)
+    print()
 
 if __name__ == "__main__":
     main()
