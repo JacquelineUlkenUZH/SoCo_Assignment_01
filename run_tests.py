@@ -66,21 +66,22 @@ def test_read_file_content_large_correct():
 
 
 def test_delete_file_small_correct():
-    assert fm.delete_file(testfile_small)
-
+    actual = fm.delete_file(testfile_small)
+    expected = True
+    assert actual == expected
 
 def test_delete_file_large_correct():
-    assert fm.delete_file(testfile_large)
-
-
-def test_delete_file_not_existing():
-    file_not_existing = "does_not_exist"
-    assert fm.delete_file(file_not_existing) == FileNotFoundError
-
+    actual = fm.delete_file(testfile_large)
+    expected = True
+    assert actual == expected
 
 def test_delete_file_empty():
-    assert fm.delete_file(testfile_empty)
+    actual = fm.delete_file(testfile_empty)
+    expected = True
+    assert actual == expected
 
+def test_delete_file_not_found():
+    assert fm.delete_file(asdf) == FileNotFoundError
 
 def test_cause_fail():
     assert 1 == 2
