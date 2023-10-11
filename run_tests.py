@@ -114,7 +114,7 @@ def test_delete_file_empty():
     assert actual == expected
 
 def test_delete_file_not_found():
-    assert fm.delete_file(asdf) == FileNotFoundError
+    assert fm.delete_file(asdf) == False
 
 def test_cause_fail():
     assert 1 == 2
