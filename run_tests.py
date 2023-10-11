@@ -7,11 +7,9 @@ testfile_empty = "testfile_empty.txt"
 testfile_small = "testfile_small.txt"
 testfile_large = "testfile_large.txt"
 testfiles = [testfile_empty, testfile_small, testfile_large]
-testcontent_small = 'This is testcontent with\na new line!'
-testcontent_large = 'This is testcontent with\na new line!' * 1000
+testcontent_small = "This is test content with\na new line!"
+testcontent_large = "This is test content with\na new line!" * 1000
 testprefix = "test_"
-
-
 
 # Handling arguments
 parser = argparse.ArgumentParser()
@@ -19,43 +17,45 @@ parser.add_argument("--select", help="Select the tests to run with a keyword")
 args = parser.parse_args()
 
 
-# Our helper functions
+# Setup and teardown
 def setup(fnc_name):
-    with open(testfile_empty, 'w') as f:
+    with open(testfile_empty, "w"):
         pass
-    with open(testfile_small, 'w') as f:
+    with open(testfile_small, "w") as f:
         f.write(testcontent_small)
-    with open(testfile_large, 'w') as f:
+    with open(testfile_large, "w") as f:
         f.write(testcontent_large)
 
-def teardown(fnc_name):
+
+def teardown(function_name):
     for testfile in testfiles:
         try:
             os.remove(testfile)
         except FileNotFoundError:
             pass
-        except Exception:
-            print(f"Teardown of {testfile} in {fnc_name} failed!")
+        except Exception as e:
+            print(f"Teardown of {testfile} in {function_name} failed with error {e}!")
 
 
-
+# Tests
 def test_printing():
     with open(testfile_small, "r") as f:
         print(f.read())
+
 
 def test_flexibility():
     print("very flexible")
 
 
+# Main
 def main():
-    for name, fnc in globals().items():
+    for name, func in globals().items():
         if name.startswith(testprefix):
             if not args.select or args.select in name:
                 setup(name)
-                fnc()
+                func()
                 teardown(name)
+
 
 if __name__ == "__main__":
     main()
-
-# test
