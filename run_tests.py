@@ -104,26 +104,31 @@ def test_delete_file_small_correct():
     expected = True
     assert actual == expected
 
+
 def test_delete_file_large_correct():
     actual = fm.delete_file(testfile_large)
     expected = True
     assert actual == expected
+
 
 def test_delete_file_empty():
     actual = fm.delete_file(testfile_empty)
     expected = True
     assert actual == expected
 
+
 def test_delete_file_not_found():
     actual = fm.delete_file("asdf")
     expected = False
     assert actual == expected
 
+
 def test_delete_file_already_opened():
-    if testfile_small.closed == False:
+    if not testfile_small.closed:
         actual = fm.delete_file(testfile_small)
         expected = False
         assert actual == expected
+
 
 def test_cause_fail():
     assert 1 == 2
@@ -162,6 +167,7 @@ def main():
     print(f"\n{str_error} {results['error']}")
     for error in errors: print(error)
     print()
+
 
 if __name__ == "__main__":
     main()
