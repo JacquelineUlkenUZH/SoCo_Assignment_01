@@ -115,9 +115,15 @@ def test_delete_file_empty():
     assert actual == expected
 
 def test_delete_file_not_found():
-    actual = fm.delete_file(asdf)
+    actual = fm.delete_file("asdf")
     expected = False
     assert actual == expected
+
+def test_delete_file_already_opened():
+    if testfile_small.closed == False:
+        actual = fm.delete_file(testfile_small)
+        expected = False
+        assert actual == expected
 
 def test_cause_fail():
     assert 1 == 2
