@@ -123,11 +123,11 @@ def test_delete_file_not_found():
     assert actual == expected
 
 
-def test_delete_file_already_opened():
-    if not testfile_small.closed:
+def test_delete_file_while_open():
+    with open(testfile_small, "r") as file:
         actual = fm.delete_file(testfile_small)
         expected = False
-        assert actual == expected
+        assert actual == expected and os.path.exists(testfile_small)
 
 
 def test_cause_fail():
