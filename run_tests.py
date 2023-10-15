@@ -6,13 +6,13 @@ from random import choice
 import file_manager as fm
 
 # Configuration variables
-testprefix = "test_"
-characterset = printable
-testfile_directory = "testfiles/"
-testfile_empty = testfile_directory + "testfile_empty.txt"
-testfile_small = testfile_directory + "testfile_small.txt"
-testfile_large = testfile_directory + "testfile_large.txt"
-testfile_nonexistent = "thisfilenamedoesnotexist"
+TEST_PREFIX = "test_"
+CHARSET = printable
+TESTFILE_DIR = "testfiles/"
+TESTFILE_EMPTY = TESTFILE_DIR + "testfile_empty.txt"
+TESTFILE_SMALL = TESTFILE_DIR + "testfile_small.txt"
+TESTFILE_LARGE = TESTFILE_DIR + "testfile_large.txt"
+TESTFILE_NONEXISTENT = "thisfilenamedoesnotexist"
 
 def setup(testcontent, function_name):
     """
@@ -21,13 +21,13 @@ def setup(testcontent, function_name):
     "testfile_small", "testfile_large" and dictionary "testcontent".
     """
     try:
-        if not os.path.exists(testfile_directory):
-            os.makedirs(testfile_directory)
-        with open(testfile_empty, "w"):
+        if not os.path.exists(TESTFILE_DIR):
+            os.makedirs(TESTFILE_DIR)
+        with open(TESTFILE_EMPTY, "w"):
             pass
-        with open(testfile_small, "w") as f:
+        with open(TESTFILE_SMALL, "w") as f:
             f.write(testcontent["small"])
-        with open(testfile_large, "w") as f:
+        with open(TESTFILE_LARGE, "w") as f:
             f.write(testcontent["large"])
     except Exception as e:
         print(f"Setup for {function_name} failed with error {e}!")
@@ -36,26 +36,26 @@ def teardown(function_name):
     """Deletes all file in directory of name stored in global variable 
        "testfile_directory" and finally delete that directory.
     """
-    for testfile in os.listdir(testfile_directory):
+    for testfile in os.listdir(TESTFILE_DIR):
         try:
-            os.remove(testfile_directory + testfile)
+            os.remove(TESTFILE_DIR + testfile)
         except FileNotFoundError:
             pass
         except Exception as e:
             print(f"Teardown of {testfile} in {function_name} failed with error {e}!")
 
-    os.rmdir(testfile_directory)
+    os.rmdir(TESTFILE_DIR)
 
 def get_random_string(length):
     """
     Random string using global variable "characterset" of length "length".
     """
-    return ''.join(choice(characterset) for i in range(int(length)))
+    return ''.join(choice(CHARSET) for i in range(int(length)))
 
 
 # Actual test functions
 def test_create_file_empty(testcontent):
-    empty_file = testfile_directory + "empty_file"
+    empty_file = TESTFILE_DIR + "empty_file"
     success = fm.create_file(empty_file)
     with open(empty_file, "r") as file:
         content_matches = file.read() == ""
@@ -67,7 +67,7 @@ def test_create_file_empty(testcontent):
 
 def test_create_file_with_content(testcontent):
     content = "content"
-    with_content_file = testfile_directory + "with_content_file"
+    with_content_file = TESTFILE_DIR + "with_content_file"
     success = fm.create_file(with_content_file, content)
     with open(with_content_file, "r") as file:
         content_matches = file.read() == content
@@ -85,61 +85,61 @@ def test_create_file_no_name(testcontent):
 
 
 def test_create_file_already_exists(testcontent):
-    actual = fm.create_file(testfile_small, "content")
+    actual = fm.create_file(TESTFILE_SMALL, "content")
     expected = False
     assert actual == expected
 
 def test_read_file_content_nonexistent(testcontent):
-    actual = fm.read_file(testfile_nonexistent)
+    actual = fm.read_file(TESTFILE_NONEXISTENT)
     expected = None
     assert actual == expected
 
 def test_read_file_content_empty_correct(testcontent):
-    actual = fm.read_file(testfile_empty)
+    actual = fm.read_file(TESTFILE_EMPTY)
     expected = ""
     assert actual == expected
 
 def test_read_file_content_small_correct(testcontent):
-    actual = fm.read_file(testfile_small)
+    actual = fm.read_file(TESTFILE_SMALL)
     expected = testcontent["small"]
     assert actual == expected
 
 
 def test_read_file_content_large_correct(testcontent):
-    actual = fm.read_file(testfile_large)
+    actual = fm.read_file(TESTFILE_LARGE)
     expected = testcontent["large"]
     assert actual == expected
 
 
 def test_delete_file_small_correct(testcontent):
-    actual = fm.delete_file(testfile_small)
+    actual = fm.delete_file(TESTFILE_SMALL)
     expected = True
     assert actual == expected
 
 
 def test_delete_file_large_correct(testcontent):
-    actual = fm.delete_file(testfile_large)
+    actual = fm.delete_file(TESTFILE_LARGE)
     expected = True
     assert actual == expected
 
 
 def test_delete_file_empty(testcontent):
-    actual = fm.delete_file(testfile_empty)
+    actual = fm.delete_file(TESTFILE_EMPTY)
     expected = True
     assert actual == expected
 
 
 def test_delete_file_not_found(testcontent):
-    actual = fm.delete_file(testfile_nonexistent)
+    actual = fm.delete_file(TESTFILE_NONEXISTENT)
     expected = False
     assert actual == expected
 
 
 def test_delete_file_while_open(testcontent):
-    with open(testfile_small, "r") as file:
-        actual = fm.delete_file(testfile_small)
+    with open(TESTFILE_SMALL, "r") as file:
+        actual = fm.delete_file(TESTFILE_SMALL)
         expected = False
-        assert actual == expected and os.path.exists(testfile_small)
+        assert actual == expected and os.path.exists(TESTFILE_SMALL)
 
 
 def test_cause_fail(testcontent):
@@ -175,7 +175,7 @@ def main():
     print()
 
     for name, func in globals().items():
-        if name.startswith(testprefix) and callable(func):
+        if name.startswith(TEST_PREFIX) and callable(func):
             if not args.select or args.select in name:
                 setup(testcontent, name)
                 start = time.time()
