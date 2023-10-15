@@ -1,5 +1,6 @@
 import argparse
 import os
+import time
 import file_manager as fm
 
 # Helper variables
@@ -10,7 +11,6 @@ testfile_large = testfile_directory + "testfile_large.txt"
 testcontent_small = "This is test content with\na new line!"
 testcontent_large = "This is test content with\na new line!" * 1000
 testprefix = "test_"
-str_position = f"\033[A\033[80C"
 results = {"pass": 0, "fail": 0, "error": 0}
 str_pass = "\033[92m" + "pass" + "\033[0m"
 str_fail = "\033[93m" + "fail" + "\033[0m"
@@ -146,21 +146,27 @@ def main():
         if name.startswith(testprefix) and callable(func):
             if not args.select or args.select in name:
                 setup(name)
-                print(f"{name}")
+                start = time.time()
                 try:
                     func()
-                    print(str_position, str_pass)
+                    print(f"{str_pass:<15}", end="")
                     results["pass"] += 1
                 except AssertionError:
-                    print(str_position, str_fail)
+                    msecs = (time.time() - start) * 1000
+                    print(f"{str_fail:<15}", end="")
                     results["fail"] += 1
                     fails.append(name)
                 except Exception:
-                    print(str_position, str_error)
+                    msecs = (time.time() - start) * 1000
+                    print(f"{str_error:<15}", end="")
                     results["error"] += 1
                     errors.append(name)
+                    
+                msecs = (time.time() - start) * 1000
+                print(f"{msecs:.1f}ms <- {name}")
                 teardown(name)
-    print("\nTest summary:\n-------------")
+    
+    print("\n\nTest summary:\n-------------")
     print(f"\n{str_pass} {results['pass']}")
     print(f"\n{str_fail} {results['fail']}")
     for fail in fails: print(fail)
