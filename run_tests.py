@@ -6,11 +6,12 @@ from random import choice
 import file_manager as fm
 
 # Global configuration variables
+CHARACTER_SET = ascii_letters + digits + punctuation
 TESTFILE_DIR = "testfiles/"
 TESTFILE_EMPTY = TESTFILE_DIR + "testfile_empty.txt"
 TESTFILE_SMALL = TESTFILE_DIR + "testfile_small.txt"
 TESTFILE_LARGE = TESTFILE_DIR + "testfile_large.txt"
-TESTFILE_NONEXISTENT = "thisfilenamedoesnotexist"
+TESTFILE_NONEXISTENT = TESTFILE_DIR + "thisfilenamedoesnotexist"
 
 
 def setup(testcontent, function_name):
@@ -76,11 +77,10 @@ def test_create_file_empty(testcontent):
 
 
 def test_create_file_with_content(testcontent):
-    content = "content"
     with_content_file = TESTFILE_DIR + "with_content_file"
-    success = fm.create_file(with_content_file, content)
+    success = fm.create_file(with_content_file, testcontent["large"])
     with open(with_content_file, "r") as file:
-        content_matches = file.read() == content
+        content_matches = file.read() == testcontent["large"]
 
     actual = content_matches and success
     expected = True
@@ -95,13 +95,13 @@ def test_create_file_no_name(testcontent):
 
 
 def test_create_file_already_exists(testcontent):
-    actual = fm.create_file(TESTFILE_SMALL, "content")
+    actual = fm.create_file(TESTFILE_SMALL, testcontent["large"])
     expected = False
     assert actual == expected
 
 
 def test_write_file_nonexistent(testcontent):
-    actual = fm.write_file(TESTFILE_NONEXISTENT, "content")
+    actual = fm.write_file(TESTFILE_NONEXISTENT, testcontent["large"])
     expected = False
     assert actual == expected
 
@@ -116,10 +116,9 @@ def test_write_file_empty(testcontent):
 
 
 def test_write_file_with_content(testcontent):
-    content = "content"
-    success = fm.write_file(TESTFILE_SMALL, content)
+    success = fm.write_file(TESTFILE_SMALL, testcontent["large"])
     with open(TESTFILE_SMALL, "r") as file:
-        content_matches = file.read() == content
+        content_matches = file.read() == testcontent["large"]
 
     actual = content_matches and success
     expected = True
@@ -175,7 +174,7 @@ def test_delete_file_not_found(testcontent):
 
 
 def test_delete_file_while_open(testcontent):
-    with open(TESTFILE_SMALL, "r") as file:
+    with open(TESTFILE_SMALL, "r"):
         actual = fm.delete_file(TESTFILE_SMALL)
         expected = False
         assert actual == expected and os.path.exists(TESTFILE_SMALL)
@@ -189,7 +188,7 @@ def test_cause_error(testcontent):
     assert 1 / 0 == 2
 
 
-def run_tests(command_line_args, test_prefix):
+def run_tests(command_line_args, test_prefix, testcontent):
     """
     Run all tests with the given test prefix.
 
@@ -208,9 +207,6 @@ def run_tests(command_line_args, test_prefix):
     str_fail = "\033[93m" + "fail" + "\033[0m"
     str_error = "\033[91m" + "error" + "\033[0m"
 
-    # Test dictionary to hold content and in the future maybe more
-    testcontent = {"small": get_random_string(printable, int(10e2)), "large": get_random_string(printable, int(10e5))}
-
     for name, func in globals().items():
         if name.startswith(test_prefix) and callable(func):
             if not command_line_args.select or command_line_args.select in name:
@@ -221,18 +217,18 @@ def run_tests(command_line_args, test_prefix):
                     print(f"{str_pass:<15}", end="")
                     results["pass"] += 1
                 except AssertionError:
-                    msecs = (time.time() - start) * 1000
                     print(f"{str_fail:<15}", end="")
                     results["fail"] += 1
                     funcnames_fail.append(name)
-                except Exception:
-                    msecs = (time.time() - start) * 1000
+                except Exception as e:
+                    print(e)
                     print(f"{str_error:<15}", end="")
                     results["error"] += 1
                     funcnames_error.append(name)
 
                 msecs = (time.time() - start) * 1000
                 print(f"{msecs:.1f}ms <- {name}")
+                print()
                 teardown(name)
 
     # Print summary
@@ -252,7 +248,10 @@ def main():
     parser.add_argument("--select", help="Select the tests to run with a keyword")
     args = parser.parse_args()
 
-    run_tests(args, "test_")
+    # Test dictionary to hold content and in the future maybe more
+    testcontent = {"small": get_random_string(CHARACTER_SET, int(10e2)), "large": get_random_string(CHARACTER_SET, int(10e5))}
+
+    run_tests(args, "test_", testcontent)
 
 
 if __name__ == "__main__":
