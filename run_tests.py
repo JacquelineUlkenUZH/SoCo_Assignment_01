@@ -5,21 +5,23 @@ from string import ascii_letters, digits, punctuation, whitespace, printable
 from random import choice
 import file_manager as fm
 
-# Configuration variables
-TEST_PREFIX = "test_"
-CHARSET = printable
+# Global configuration variables
 TESTFILE_DIR = "testfiles/"
 TESTFILE_EMPTY = TESTFILE_DIR + "testfile_empty.txt"
 TESTFILE_SMALL = TESTFILE_DIR + "testfile_small.txt"
 TESTFILE_LARGE = TESTFILE_DIR + "testfile_large.txt"
 TESTFILE_NONEXISTENT = "thisfilenamedoesnotexist"
 
+
 def setup(testcontent, function_name):
     """
-    Create directory of name stored in global variable "testfile_directory".
-    Create three files in that directory using global variables "testfile_empty", 
-    "testfile_small", "testfile_large" and dictionary "testcontent".
+    Run before every test. Create directory for the test file, and create three test files.
+
+    Args:
+        testcontent (dict): Dictionary containing the content of the test files.
+        function_name (str): The name of the current test function.
     """
+
     try:
         if not os.path.exists(TESTFILE_DIR):
             os.makedirs(TESTFILE_DIR)
@@ -32,25 +34,33 @@ def setup(testcontent, function_name):
     except Exception as e:
         print(f"Setup for {function_name} failed with error {e}!")
 
+
 def teardown(function_name):
-    """Deletes all file in directory of name stored in global variable 
-       "testfile_directory" and finally delete that directory.
     """
+    Run after every test. Delete all files in the test file directory, and then delete the directory itself.
+
+    Args:
+        function_name (str): The name of the current test function.
+    """
+
     for testfile in os.listdir(TESTFILE_DIR):
         try:
             os.remove(TESTFILE_DIR + testfile)
-        except FileNotFoundError:
-            pass
         except Exception as e:
             print(f"Teardown of {testfile} in {function_name} failed with error {e}!")
 
     os.rmdir(TESTFILE_DIR)
 
-def get_random_string(length):
+
+def get_random_string(charset, length):
     """
-    Random string using global variable "characterset" of length "length".
+    Given a set of characters, generate a random string of a given length.
+
+    Args:
+        charset (str): A string containing all available characters to use
+        length (int): The length of the random string
     """
-    return ''.join(choice(CHARSET) for i in range(int(length)))
+    return ''.join(choice(charset) for i in range(length))
 
 
 # Actual test functions
@@ -89,15 +99,44 @@ def test_create_file_already_exists(testcontent):
     expected = False
     assert actual == expected
 
+
+def test_write_file_nonexistent(testcontent):
+    actual = fm.write_file(TESTFILE_NONEXISTENT, "content")
+    expected = False
+    assert actual == expected
+
+
+def test_write_file_empty(testcontent):
+    success = fm.write_file(TESTFILE_EMPTY, "")
+    with open(TESTFILE_EMPTY, "r") as file:
+        content_matches = file.read() == ""
+    actual = content_matches and success
+    expected = True
+    assert actual == expected
+
+
+def test_write_file_with_content(testcontent):
+    content = "content"
+    success = fm.write_file(TESTFILE_SMALL, content)
+    with open(TESTFILE_SMALL, "r") as file:
+        content_matches = file.read() == content
+
+    actual = content_matches and success
+    expected = True
+    assert actual == expected
+
+
 def test_read_file_content_nonexistent(testcontent):
     actual = fm.read_file(TESTFILE_NONEXISTENT)
     expected = None
     assert actual == expected
 
+
 def test_read_file_content_empty_correct(testcontent):
     actual = fm.read_file(TESTFILE_EMPTY)
     expected = ""
     assert actual == expected
+
 
 def test_read_file_content_small_correct(testcontent):
     actual = fm.read_file(TESTFILE_SMALL)
@@ -150,9 +189,16 @@ def test_cause_error(testcontent):
     assert 1 / 0 == 2
 
 
-def main():
+def run_tests(command_line_args, test_prefix):
+    """
+    Run all tests with the given test prefix.
 
-    # Book-keeping variables to inform user at end
+    Args:
+        command_line_args (Namespace): Keywords to select which tests should be run.
+        test_prefix (str): Prefix of function names considered tests.
+    """
+
+    # Bookkeeping variables to inform user at end
     funcnames_fail = []
     funcnames_error = []
     results = {"pass": 0, "fail": 0, "error": 0}
@@ -161,22 +207,13 @@ def main():
     str_pass = "\033[92m" + "pass" + "\033[0m"
     str_fail = "\033[93m" + "fail" + "\033[0m"
     str_error = "\033[91m" + "error" + "\033[0m"
-    
-    # Test dictionary to hold content and in the future maybe more
-    testcontent = {}
-    testcontent["small"] = get_random_string(10e2)
-    testcontent["large"] = get_random_string(10e5)
 
-    # Parse arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--select", help="Select the tests to run with a keyword")
-    args = parser.parse_args()
-    
-    print()
+    # Test dictionary to hold content and in the future maybe more
+    testcontent = {"small": get_random_string(printable, int(10e2)), "large": get_random_string(printable, int(10e5))}
 
     for name, func in globals().items():
-        if name.startswith(TEST_PREFIX) and callable(func):
-            if not args.select or args.select in name:
+        if name.startswith(test_prefix) and callable(func):
+            if not command_line_args.select or command_line_args.select in name:
                 setup(testcontent, name)
                 start = time.time()
                 try:
@@ -193,18 +230,29 @@ def main():
                     print(f"{str_error:<15}", end="")
                     results["error"] += 1
                     funcnames_error.append(name)
-                    
+
                 msecs = (time.time() - start) * 1000
                 print(f"{msecs:.1f}ms <- {name}")
                 teardown(name)
-    
-    print("\n\nTest summary:\n-------------")
+
+    # Print summary
+    print("\n\n-------------")
+    print("Test summary:")
     print(f"\n{str_pass} {results['pass']}")
     print(f"\n{str_fail} {results['fail']}")
     for fail in funcnames_fail: print(fail)
     print(f"\n{str_error} {results['error']}")
     for error in funcnames_error: print(error)
     print()
+
+
+def main():
+    # Parse arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--select", help="Select the tests to run with a keyword")
+    args = parser.parse_args()
+
+    run_tests(args, "test_")
 
 
 if __name__ == "__main__":
