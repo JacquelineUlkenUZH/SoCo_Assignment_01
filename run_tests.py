@@ -1,14 +1,17 @@
 import argparse
 import os
 import time
-from string import ascii_letters, digits, punctuation, whitespace, printable
+from string import ascii_letters, digits, punctuation, whitespace
 from random import choice
 import file_manager as fm
 
+abspath = os.path.dirname(os.path.abspath(__file__))
+os.chdir(abspath)
+
 # Global configuration variables
-CHARACTER_SET = ascii_letters + digits + punctuation
-TESTFILE_DIR = "testfiles/"
+TESTFILE_DIR = abspath + "/testfiles/"
 TESTFILE_EMPTY = TESTFILE_DIR + "testfile_empty.txt"
+TESTFILE_WHITESPACE = TESTFILE_DIR + "testfile_ws.txt"
 TESTFILE_SMALL = TESTFILE_DIR + "testfile_small.txt"
 TESTFILE_LARGE = TESTFILE_DIR + "testfile_large.txt"
 TESTFILE_NONEXISTENT = TESTFILE_DIR + "thisfilenamedoesnotexist"
@@ -23,15 +26,18 @@ def setup(testcontent, function_name):
         function_name (str): The name of the current test function.
     """
 
+
     try:
         if not os.path.exists(TESTFILE_DIR):
             os.makedirs(TESTFILE_DIR)
         with open(TESTFILE_EMPTY, "w"):
             pass
-        with open(TESTFILE_SMALL, "w") as f:
+        with open(TESTFILE_SMALL, "w", newline="") as f:
             f.write(testcontent["small"])
-        with open(TESTFILE_LARGE, "w") as f:
+        with open(TESTFILE_LARGE, "w", newline="") as f:
             f.write(testcontent["large"])
+        with open(TESTFILE_WHITESPACE, "w", newline="") as f:
+            f.write(testcontent["whitespace"])
     except Exception as e:
         print(f"Setup for {function_name} failed with error {e}!")
 
@@ -79,7 +85,7 @@ def test_create_file_empty(testcontent):
 def test_create_file_with_content(testcontent):
     with_content_file = TESTFILE_DIR + "with_content_file"
     success = fm.create_file(with_content_file, testcontent["large"])
-    with open(with_content_file, "r") as file:
+    with open(with_content_file, "r", newline="") as file:
         content_matches = file.read() == testcontent["large"]
 
     actual = content_matches and success
@@ -95,7 +101,10 @@ def test_create_file_no_name(testcontent):
 
 
 def test_create_file_already_exists(testcontent):
-    actual = fm.create_file(TESTFILE_SMALL, testcontent["large"])
+    success = fm.create_file(TESTFILE_SMALL, testcontent["large"])
+    with open(TESTFILE_SMALL, "r", newline="") as file:
+        content_is_original = file.read() == testcontent["small"]
+    actual = success and not content_is_original
     expected = False
     assert actual == expected
 
@@ -115,15 +124,23 @@ def test_write_file_empty(testcontent):
     assert actual == expected
 
 
-def test_write_file_with_content(testcontent):
-    success = fm.write_file(TESTFILE_SMALL, testcontent["large"])
-    with open(TESTFILE_SMALL, "r") as file:
+def test_write_file_with_large_content(testcontent):
+    success = fm.write_file(TESTFILE_LARGE, testcontent["large"])
+    with open(TESTFILE_LARGE, "r") as file:
         content_matches = file.read() == testcontent["large"]
 
     actual = content_matches and success
     expected = True
     assert actual == expected
 
+def test_write_file_with_whitespaces(testcontent):
+    success = fm.write_file(TESTFILE_WHITESPACE, testcontent["whitespace"])
+    with open(TESTFILE_WHITESPACE, "r", newline="") as file:
+        content_matches = file.read() == testcontent["whitespace"]
+
+    actual = content_matches and success
+    expected = True
+    assert actual == expected
 
 def test_read_file_content_nonexistent(testcontent):
     actual = fm.read_file(TESTFILE_NONEXISTENT)
@@ -146,6 +163,11 @@ def test_read_file_content_small_correct(testcontent):
 def test_read_file_content_large_correct(testcontent):
     actual = fm.read_file(TESTFILE_LARGE)
     expected = testcontent["large"]
+    assert actual == expected
+
+def test_read_file_with_whitespaces(testcontent):
+    actual = fm.read_file(TESTFILE_WHITESPACE)
+    expected = testcontent["whitespace"]
     assert actual == expected
 
 
@@ -180,11 +202,29 @@ def test_delete_file_while_open(testcontent):
         assert actual == expected and os.path.exists(TESTFILE_SMALL)
 
 
-def test_cause_fail(testcontent):
+# Selftests of the testing system
+
+def selftest_write_whitespaces(testcontent):
+    with open(TESTFILE_WHITESPACE, "w", newline="") as file:
+        file.write(testcontent["whitespace"])
+    with open(TESTFILE_WHITESPACE, "r", newline="") as file:
+        actual = file.read() == testcontent["whitespace"]
+
+    expected = True
+    assert actual == expected
+
+def selftest_read_whitespaces(testcontent):
+    with open(TESTFILE_WHITESPACE, "r", newline="") as file:
+        actual = file.read() == testcontent["whitespace"]
+
+    expected = True
+    assert actual == expected
+
+def selftest_cause_fail(testcontent):
     assert 1 == 2
 
 
-def test_cause_error(testcontent):
+def selftest_cause_error(testcontent):
     assert 1 / 0 == 2
 
 
@@ -239,19 +279,29 @@ def run_tests(command_line_args, test_prefix, testcontent):
     for fail in funcnames_fail: print(fail)
     print(f"\n{str_error} {results['error']}")
     for error in funcnames_error: print(error)
+    print("\n\n-------------")
     print()
 
 
 def main():
     # Parse arguments
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+                    prog='run_tests.py',
+                    description='Tests the program file_manager.py provided in class.',
+                    epilog='')
     parser.add_argument("--select", help="Select the tests to run with a keyword")
+    parser.add_argument("--selftest", action='store_true', help="Include selftests of testing system")
     args = parser.parse_args()
 
     # Test dictionary to hold content and in the future maybe more
-    testcontent = {"small": get_random_string(CHARACTER_SET, int(10e2)), "large": get_random_string(CHARACTER_SET, int(10e5))}
+    CHARACTER_SET = ascii_letters + digits + punctuation
+    testcontent = {"small": get_random_string(CHARACTER_SET, int(10e2)), 
+                   "large": get_random_string(CHARACTER_SET, int(10e5)),
+                   "whitespace": get_random_string(CHARACTER_SET+whitespace, int(10e3))}
 
     run_tests(args, "test_", testcontent)
+    if args.selftest:
+        run_tests(args, "selftest_", testcontent)
 
 
 if __name__ == "__main__":
