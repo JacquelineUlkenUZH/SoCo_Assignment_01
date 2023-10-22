@@ -8,9 +8,9 @@ work between the three of us. To do that, we met on October 11th after the lectu
 We thought about some test ideas for each function. 
 We wrote down every idea that came to mind. There were some obvious ones such as testing if a file was created
 succesfully but also tests such as deleting a file that is currently open. We then split the work in three parts:
-   - Marc: writing teardown and setup and the dictionary, writing tests for read_file, printing and time measurement
-   - Jackie: writing tests for create_file and write_file
-   - Anna: writing tests for delete_file and writing README.md
+   - Marc Chéhab: writing teardown and setup and the dictionary, writing tests for read_file, printing and time measurement
+   - Jacqueline Ulken: writing tests for create_file and write_file
+   - Anna Pang: writing tests for delete_file and writing README.md
 In the end, this plan was not 100% accurate and we ended up helping each other, editing each others parts and having
 meetings every now and then to work on the code together. We also created a discord group chat to organize, ask
 questions and coordinate.
