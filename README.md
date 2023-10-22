@@ -5,7 +5,7 @@ Assignment 01 for the course Software Construction 23HS 22BI0004
 ## Organization
 We decided to look and study the assignment in the first week from October 4th until October 11th and then split the
 work between the three of us. To do that, we met on October 11th after the lecture and lab and discussed the assignment.
-We thought about some test ideas for each function: ![img.png](img.png)
+We thought about some test ideas for each function. 
 We wrote down every idea that came to mind. There were some obvious ones such as testing if a file was created
 succesfully but also tests such as deleting a file that is currently open. We then split the work in three parts:
    - Marc: writing teardown and setup and the dictionary, writing tests for read_file, printing and time measurement
@@ -35,7 +35,7 @@ We had several different ideas and implementations before our final solution:
    - To test the create_file function, we need to create files. These should be deleted in the teardown function, but
      how will the teardown function find them? We had the idea to manually add them to a list or teardown just deletes
      everything without knowing what was created. We have a testfiles folder where all the testing happens and teardown
-     completely deletes that folder at the end: ![img_1.png](img_1.png); ![img_2.png](img_2.png)
+     completely deletes that folder at the end.
 <!--- add the other teardowns and setups -->
 
 ### Printing and time measurement
