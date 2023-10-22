@@ -26,7 +26,6 @@ def setup(testcontent, function_name):
         function_name (str): The name of the current test function.
     """
 
-
     try:
         if not os.path.exists(TESTFILE_DIR):
             os.makedirs(TESTFILE_DIR)
@@ -133,6 +132,7 @@ def test_write_file_with_large_content(testcontent):
     expected = True
     assert actual == expected
 
+
 def test_write_file_with_whitespaces(testcontent):
     success = fm.write_file(TESTFILE_WHITESPACE, testcontent["whitespace"])
     with open(TESTFILE_WHITESPACE, "r", newline="") as file:
@@ -141,6 +141,7 @@ def test_write_file_with_whitespaces(testcontent):
     actual = content_matches and success
     expected = True
     assert actual == expected
+
 
 def test_read_file_content_nonexistent(testcontent):
     actual = fm.read_file(TESTFILE_NONEXISTENT)
@@ -165,6 +166,7 @@ def test_read_file_content_large_correct(testcontent):
     expected = testcontent["large"]
     assert actual == expected
 
+
 def test_read_file_with_whitespaces(testcontent):
     actual = fm.read_file(TESTFILE_WHITESPACE)
     expected = testcontent["whitespace"]
@@ -178,13 +180,13 @@ def test_delete_file_small_correct(testcontent):
 
 
 def test_delete_file_large_correct(testcontent):
-    actual = fm.delete_file(TESTFILE_LARGE)
+    actual = fm.delete_file(TESTFILE_LARGE) and not os.path.exists(TESTFILE_LARGE)
     expected = True
     assert actual == expected
 
 
 def test_delete_file_empty(testcontent):
-    actual = fm.delete_file(TESTFILE_EMPTY)
+    actual = fm.delete_file(TESTFILE_EMPTY) and not os.path.exists(TESTFILE_EMPTY)
     expected = True
     assert actual == expected
 
@@ -197,13 +199,12 @@ def test_delete_file_not_found(testcontent):
 
 def test_delete_file_while_open(testcontent):
     with open(TESTFILE_SMALL, "r"):
-        actual = fm.delete_file(TESTFILE_SMALL)
+        actual = fm.delete_file(TESTFILE_SMALL) and not os.path.exists(TESTFILE_SMALL)
         expected = False
-        assert actual == expected and os.path.exists(TESTFILE_SMALL)
+        assert actual == expected
 
 
-# Selftests of the testing system
-
+# Self-tests of the testing system
 def selftest_write_whitespaces(testcontent):
     with open(TESTFILE_WHITESPACE, "w", newline="") as file:
         file.write(testcontent["whitespace"])
@@ -213,12 +214,14 @@ def selftest_write_whitespaces(testcontent):
     expected = True
     assert actual == expected
 
+
 def selftest_read_whitespaces(testcontent):
     with open(TESTFILE_WHITESPACE, "r", newline="") as file:
         actual = file.read() == testcontent["whitespace"]
 
     expected = True
     assert actual == expected
+
 
 def selftest_cause_fail(testcontent):
     assert 1 == 2
@@ -286,18 +289,18 @@ def run_tests(command_line_args, test_prefix, testcontent):
 def main():
     # Parse arguments
     parser = argparse.ArgumentParser(
-                    prog='run_tests.py',
-                    description='Tests the program file_manager.py provided in class.',
-                    epilog='')
+        prog='run_tests.py',
+        description='Tests the program file_manager.py provided in class.',
+        epilog='')
     parser.add_argument("--select", help="Select the tests to run with a keyword")
     parser.add_argument("--selftest", action='store_true', help="Include selftests of testing system")
     args = parser.parse_args()
 
     # Test dictionary to hold content and in the future maybe more
     CHARACTER_SET = ascii_letters + digits + punctuation
-    testcontent = {"small": get_random_string(CHARACTER_SET, int(10e2)), 
+    testcontent = {"small": get_random_string(CHARACTER_SET, int(10e2)),
                    "large": get_random_string(CHARACTER_SET, int(10e5)),
-                   "whitespace": get_random_string(CHARACTER_SET+whitespace, int(10e3))}
+                   "whitespace": get_random_string(CHARACTER_SET + whitespace, int(10e3))}
 
     run_tests(args, "test_", testcontent)
     if args.selftest:
