@@ -27,8 +27,8 @@ Command-line arguments are parsed using `argparse`.
 
 This framework runs and catalogues a series of test functions.
 
-1.) Before each run, random small, large and whitespace **strings are generated** and stored in a dictionary `testcontent` that we pass around. Only the whitespace string contains whitespaces.
-2.) Before each test, `setup()` creates a testing environment in a **test folder** containing an empty file as well as one for each sample strings.
+1.) Before each run, random small, large and whitespace **strings are generated** and stored in a dictionary `testcontent` that we pass around. We used charactersets of the `string` library. Only the whitespace string contains whitespaces.
+2.) Before each test, `setup()` creates a testing environment in a **test folder** containing an empty file as well as one test file for each of the three sample strings.
 3.) Test functions with prefix "test_" are selected using **introspection**. If the user uses `--select`, the selection is further narrowed.
 4.) Tests are timed using `time` and results are catalogued.
 5.) After each test, `teardown()` **deletes the test folder**.
@@ -43,14 +43,10 @@ addition, this implementation only checks if the file is closed and not if it ac
 came up with the idea to open the file and then trying to delete it, and asserting if the return value is "False".
 
 ### Testing the read_file() function
-
-
-`test_read_file_content_empty_correct()` 
-`test_read_file_content_small_correct()`
-`test_read_file_content_large_correct()`
-
-`test_read_file_content_nonexistent()`
-`test_read_file_with_whitespaces()`
+- `test_read_file_content_nonexistent()` expects that attempting to read a non-existent file should return **`None`**.
+- `test_read_file_content_empty_correct()` reads our empty test file and expects an **empty string** to be returned.
+- `test_read_file_content_small_correct()` and `test_read_file_content_large_correct()` check if `read_file()` returns the **original strings** we saved in our dictionary `testcontent` and our test files. (Reminder: These exclude whitespaces.)
+- `test_read_file_with_whitespaces()` checks if `read_file()` reads the test file containing our random string with whitespaces and expects it to be equal to the original stored in our dictionary `testcontent`.
 
 ### Testing the create_file() function
 The functions `test_create_file_empty()` and `test_create_file_with_content()` test the basic functionality of file 
@@ -65,10 +61,10 @@ be overwritten or edited by this function. The `test_create_file_already_exists(
 The `write_file()` function is very similar to the `create_file()` function. Again we are testing basic functionality, 
 by writing to an empty file and writing to a file with a lot of content. 
 
-`test_write_file_with_whitespaces()`
-
 This time, the docstring of `write_file()` states that it should write content to an *existing* file. It should not 
 create a new file. To test this, we implemented the `test_write_file_nonexistent()` function.
+
+`test_write_file_with_whitespaces()` uses `write_file()` to overwrite our testfile containing whitespaces. It then reads the content back itself and compares it to the original string in `testcontent`. The test passes if both `write_file()` returns `True` and the file content remains the same.
 
 ## Organization
 We decided to look and study the assignment in the first week from October 4th until October 11th. We thought about some test ideas for each function. We wrote down every idea that came to mind. 
