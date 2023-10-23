@@ -69,4 +69,4 @@ create a new file. To test this, we implemented the `test_write_file_nonexistent
 ## Organization
 We decided to look and study the assignment in the first week from October 4th until October 11th. We thought about some test ideas for each function. We wrote down every idea that came to mind. 
 
-When then split the work between the three of us. We also created a discord group chat to organize, ask questions and coordinate.
+We then split the work between the three of us. We also created a discord group chat to organize, ask questions and coordinate.
