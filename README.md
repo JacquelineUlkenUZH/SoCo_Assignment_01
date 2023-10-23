@@ -32,7 +32,7 @@ in every test is so that all tests can be called the same way.
 
 ### Description of Tests
 #### Testing the delete_file() function
-For test_delete_file_while_open we first thought about checking if a file is already opened with the .closed() function
+For `test_delete_file_while_open()` we first thought about checking if a file is already opened with the `.closed()` function
 and then trying to delete it. We tried to implement it this way but an unresolved attribute reference came up. In
 addition, this implementation only checks if the file is closed and not if it actually can be deleted. To solve this, we
 came up with the idea to open the file and then trying to delete it, and asserting if the return value is "False".
