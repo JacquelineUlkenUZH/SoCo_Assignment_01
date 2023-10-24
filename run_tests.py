@@ -14,7 +14,7 @@ TESTFILE_EMPTY = TESTFILE_DIR + "testfile_empty.txt"
 TESTFILE_WHITESPACE = TESTFILE_DIR + "testfile_ws.txt"
 TESTFILE_SMALL = TESTFILE_DIR + "testfile_small.txt"
 TESTFILE_LARGE = TESTFILE_DIR + "testfile_large.txt"
-TESTFILE_NONEXISTENT = TESTFILE_DIR + "thisfilenamedoesnotexist"
+TESTFILE_NONEXISTENT = TESTFILE_DIR + "thisfilenamedoesnotexist.txt"
 
 
 def setup(testcontent, function_name):
@@ -66,27 +66,24 @@ def get_random_string(charset, length):
         charset (str): A string containing all available characters to use
         length (int): The length of the random string
     """
+
     return ''.join(choice(charset) for i in range(length))
 
 
 # Actual test functions
 def test_create_file_empty(testcontent):
-    empty_file = TESTFILE_DIR + "empty_file"
-    success = fm.create_file(empty_file)
-    with open(empty_file, "r") as file:
+    success = fm.create_file(TESTFILE_NONEXISTENT)
+    with open(TESTFILE_NONEXISTENT, "r") as file:
         content_matches = file.read() == ""
-
     actual = content_matches and success
     expected = True
     assert actual == expected
 
 
 def test_create_file_with_content(testcontent):
-    with_content_file = TESTFILE_DIR + "with_content_file"
-    success = fm.create_file(with_content_file, testcontent["large"])
-    with open(with_content_file, "r", newline="") as file:
+    success = fm.create_file(TESTFILE_NONEXISTENT, testcontent["large"])
+    with open(TESTFILE_NONEXISTENT, "r", newline="") as file:
         content_matches = file.read() == testcontent["large"]
-
     actual = content_matches and success
     expected = True
     assert actual == expected
@@ -127,7 +124,6 @@ def test_write_file_with_large_content(testcontent):
     success = fm.write_file(TESTFILE_LARGE, testcontent["large"])
     with open(TESTFILE_LARGE, "r") as file:
         content_matches = file.read() == testcontent["large"]
-
     actual = content_matches and success
     expected = True
     assert actual == expected
@@ -137,7 +133,6 @@ def test_write_file_with_whitespaces(testcontent):
     success = fm.write_file(TESTFILE_WHITESPACE, testcontent["whitespace"])
     with open(TESTFILE_WHITESPACE, "r", newline="") as file:
         content_matches = file.read() == testcontent["whitespace"]
-
     actual = content_matches and success
     expected = True
     assert actual == expected
@@ -174,7 +169,7 @@ def test_read_file_with_whitespaces(testcontent):
 
 
 def test_delete_file_small_correct(testcontent):
-    actual = fm.delete_file(TESTFILE_SMALL)
+    actual = fm.delete_file(TESTFILE_SMALL) and not os.path.exists(TESTFILE_SMALL)
     expected = True
     assert actual == expected
 
@@ -210,7 +205,6 @@ def selftest_write_whitespaces(testcontent):
         file.write(testcontent["whitespace"])
     with open(TESTFILE_WHITESPACE, "r", newline="") as file:
         actual = file.read() == testcontent["whitespace"]
-
     expected = True
     assert actual == expected
 
@@ -218,7 +212,6 @@ def selftest_write_whitespaces(testcontent):
 def selftest_read_whitespaces(testcontent):
     with open(TESTFILE_WHITESPACE, "r", newline="") as file:
         actual = file.read() == testcontent["whitespace"]
-
     expected = True
     assert actual == expected
 
