@@ -43,11 +43,11 @@ addition, this implementation only checks if the file is closed and not if it ac
 came up with the idea to open the file and then trying to delete it, and asserting if the return value is "False".
 
 ### Testing the read_file() function
-- `test_read_file_content_nonexistent()` expects that attempting to read a non-existent file should return **`None`**.
-- `test_read_file_content_empty_correct()` reads our empty test file and expects an **empty string** to be returned.
-- `test_read_file_content_small_correct()` and `test_read_file_content_large_correct()` check if `read_file()` returns the **original strings** we saved in our dictionary `testcontent` and our test files. (Reminder: These exclude whitespaces.)
-- `test_read_file_with_whitespaces()` checks if `read_file()` reads the test file containing our random string with whitespaces and expects it to be equal to the original stored in our dictionary `testcontent`.
+`test_read_file_content_empty_correct()` reads our empty test file and expects an **empty string** to be returned. `test_read_file_content_nonexistent()` expects that attempting to read a non-existent file returns **`None`**.
 
+`test_read_file_content_small_correct()` and `test_read_file_content_large_correct()` check if `read_file()` returns the **original strings** we saved in our dictionary `testcontent` and our test files. (Reminder: These exclude whitespaces.)
+
+`test_read_file_with_whitespaces()` checks if `read_file()` reads the test file containing our random string with whitespaces and expects it to be equal to the original stored in our dictionary `testcontent`.
 ### Testing the create_file() function
 The functions `test_create_file_empty()` and `test_create_file_with_content()` test the basic functionality of file 
 creation by using the `create_file()` function to create an empty file and a file with content respectively. The 
