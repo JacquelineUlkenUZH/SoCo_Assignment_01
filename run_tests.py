@@ -100,20 +100,22 @@ def test_create_file_already_exists(testcontent):
     success = fm.create_file(TESTFILE_SMALL, testcontent["large"])
     with open(TESTFILE_SMALL, "r", newline="") as file:
         content_is_original = file.read() == testcontent["small"]
-    actual = success and not content_is_original
+    actual = success or not content_is_original
     expected = False
     assert actual == expected
 
 
 def test_write_file_nonexistent(testcontent):
-    actual = fm.write_file(TESTFILE_NONEXISTENT, testcontent["large"])
+    success = fm.write_file(TESTFILE_NONEXISTENT, testcontent["large"])
+    fileexists = os.path.exists(TESTFILE_NONEXISTENT)
+    actual = success or fileexists
     expected = False
     assert actual == expected
 
 
 def test_write_file_empty(testcontent):
-    success = fm.write_file(TESTFILE_EMPTY, "")
-    with open(TESTFILE_EMPTY, "r") as file:
+    success = fm.write_file(TESTFILE_SMALL, "")
+    with open(TESTFILE_SMALL, "r") as file:
         content_matches = file.read() == ""
     actual = content_matches and success
     expected = True
@@ -121,8 +123,8 @@ def test_write_file_empty(testcontent):
 
 
 def test_write_file_with_large_content(testcontent):
-    success = fm.write_file(TESTFILE_LARGE, testcontent["large"])
-    with open(TESTFILE_LARGE, "r") as file:
+    success = fm.write_file(TESTFILE_EMPTY, testcontent["large"])
+    with open(TESTFILE_EMPTY, "r") as file:
         content_matches = file.read() == testcontent["large"]
     actual = content_matches and success
     expected = True
@@ -130,8 +132,8 @@ def test_write_file_with_large_content(testcontent):
 
 
 def test_write_file_with_whitespaces(testcontent):
-    success = fm.write_file(TESTFILE_WHITESPACE, testcontent["whitespace"])
-    with open(TESTFILE_WHITESPACE, "r", newline="") as file:
+    success = fm.write_file(TESTFILE_EMPTY, testcontent["whitespace"])
+    with open(TESTFILE_EMPTY, "r", newline="") as file:
         content_matches = file.read() == testcontent["whitespace"]
     actual = content_matches and success
     expected = True
@@ -201,9 +203,9 @@ def test_delete_file_while_open(testcontent):
 
 # Self-tests of the testing system
 def selftest_write_whitespaces(testcontent):
-    with open(TESTFILE_WHITESPACE, "w", newline="") as file:
+    with open(TESTFILE_EMPTY, "w", newline="") as file:
         file.write(testcontent["whitespace"])
-    with open(TESTFILE_WHITESPACE, "r", newline="") as file:
+    with open(TESTFILE_EMPTY, "r", newline="") as file:
         actual = file.read() == testcontent["whitespace"]
     expected = True
     assert actual == expected
